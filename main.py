@@ -15,11 +15,11 @@ import os
 
 app = FastAPI()
 # Mount static files (CSS, JS, etc.)
-app.mount("/static", StaticFiles(directory="./static"), name="static")
-
+# app.mount("/static", StaticFiles(directory="./static"), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
 # Jinja2 template setup
-templates = Jinja2Templates(directory="./templates")
-
+# templates = Jinja2Templates(directory="./templates")
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 # Load the .env file
 load_dotenv()
 # assign key from env to langchain/openai
@@ -30,8 +30,6 @@ if api_key is None:
 
 from langchain.chat_models import init_chat_model
 model = init_chat_model("mistral-small", model_provider="mistralai")
-
-
 
 # Model & chains
 llm = ChatMistralAI(api_key=api_key, model="mistral-small", temperature=0.7)
@@ -51,8 +49,19 @@ evaluation_prompt = PromptTemplate(
     "Give constructive feedback in simple language, in 3 sentences."
 )
 
+matching_prompt = PromptTemplate(
+    input_variable=["idioms", "do_training"],
+    template=(
+        "Create a matching exercise for these German idioms and their context meaning in English.\n"
+        "Idioms:\n{idioms}\n\n"
+        "Return two numbered lists: one with German idioms, one with English meanings in random order."
+    )
+)
+
+
 idiom_chain = LLMChain(llm=llm, prompt=idiom_prompt)
 eval_chain = LLMChain(llm=llm, prompt=evaluation_prompt)
+matching_chain = LLMChain(llm=llm, prompt=matching_prompt)
 
 class IdiomRequest(BaseModel):
     nbr_idioms: int
@@ -62,6 +71,10 @@ class IdiomRequest(BaseModel):
 class EvalRequest(BaseModel):
     user_sentence: str
     idiom: str
+
+class MatchingExerciseResponse(BaseModel):
+    german_idioms: list[str]
+    english_meanings: list[str]
 
 @app.post("/generate_idioms")
 def generate_idioms(req: IdiomRequest):
@@ -80,8 +93,27 @@ def evaluate(req: EvalRequest):
     })
     return {"feedback": feedback}
 
-
-
 @app.get("/", response_class=HTMLResponse)
 async def read_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/templates/training.html", response_class=HTMLResponse)
+async def training_room(request: Request):
+    return templates.TemplateResponse("training.html", {"request": request})
+
+@app.post("/generate_matching")
+async def generate_matching(req: IdiomRequest):
+    idiom_text = idiom_chain.run({
+        "nbr_idioms": req.nbr_idioms,
+        "topic": req.topic,
+        "level": req.level
+    })
+
+    # Extract only German idioms
+    idioms = [line.split(" - ")[0].strip() for line in idiom_text.strip().split("\n") if " - " in line]
+    idioms_text = "\n".join(f"{i+1}. {idiom}" for i, idiom in enumerate(idioms))
+    
+    # Create matching exercise
+    match_output = matching_chain.run({"idioms": idioms_text})
+    
+    return {"exercise": match_output}

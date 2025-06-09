@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Idiom Matching Exercise</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="container">
+        <h1>Idiom Matching Trainer</h1>
+        <form id="match-form">
+            <label>Anzahl:</label>
+            <input type="number" name="nbr_idioms" value="3"><br>
+            <label>Thema:</label>
+            <input type="text" name="topic" value="Tiere"><br>
+            <label>Niveau:</label>
+            <input type="text" name="level" value="A2"><br>
+            <button type="submit">Generieren</button>
+        </form>
+
+        <div id="exercise-output" style="margin-top: 2rem;"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById("match-form");
+        const output = document.getElementById("exercise-output");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = {
+                nbr_idioms: Number(formData.get("nbr_idioms")),
+                topic: formData.get("topic"),
+                level: formData.get("level"),
+            };
+
+            const res = await fetch("/generate_matching", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+
+            const json = await res.json();
+            output.innerHTML = `<pre>${json.exercise}</pre>`;
+        });
+    </script>
+</body>
+</html>

@@ -38,8 +38,13 @@
 
             <button type="submit">Evaluate</button>
         </form>
-
         <div id="feedback"></div>
+        <!-- Go to Training Room button -->
+        <div id="training-room-link" style="display:block; margin-top: 20px;">
+            <a href="/templates/training.html">
+                <button type="button">Go to Training Room</button>
+            </a>
+        </div>
     </div>
 
     <script>
@@ -95,7 +100,9 @@
 
         const data = await res.json();
         document.getElementById("feedback").innerText = data.feedback;
+        document.getElementById("training-room-link").style.display = "block";
     });
     </script>
 </body>
+<!-- <footer class="footer">Powered by langcraft</footer> -->
 </html>
