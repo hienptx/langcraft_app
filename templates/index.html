@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>German Idiom Game</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>German Idiom Generator</h1>
+
+    <!-- Idiom Generation Form -->
+    <form id="idiom-form">
+        <label for="nbr_idioms">Number of Idioms:</label>
+        <input type="number" id="nbr_idioms" name="nbr_idioms" required><br>
+
+        <label for="topic">Topic:</label>
+        <input type="text" id="topic" name="topic" required><br>
+
+        <label for="level">Level:</label>
+        <input type="text" id="level" name="level" required><br>
+
+        <button type="submit">Generate</button>
+    </form>
+
+    <hr>
+
+    <!-- Result: Idioms -->
+    <div id="result"></div>
+
+    <!-- Evaluation Form -->
+    <div id="evaluation-section" style="display:none;">
+        <h2>Your turn</h2>
+        <form id="eval-form">
+            <label for="idiom">Choose an idiom</label>
+            <textarea id="idiom" name="idiom" rows="1" cols="40" required></textarea><br>
+
+            <label for="user_sentence">Your Sentence:</label>
+            <textarea id="user_sentence" name="user_sentence" rows="3" cols="40" required></textarea><br>
+
+            <button type="submit">Evaluate</button>
+        </form>
+
+        <div id="feedback"></div>
+    </div>
+
+    <script>
+    const idiomForm = document.getElementById("idiom-form");
+    const evalForm = document.getElementById("eval-form");
+    const idiomSelect = document.getElementById("idiom");
+    const evalSection = document.getElementById("evaluation-section");
+
+    idiomForm.addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const res = await fetch("/generate_idioms", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nbr_idioms: document.getElementById("nbr_idioms").value,
+                topic: document.getElementById("topic").value,
+                level: document.getElementById("level").value
+            })
+        });
+
+        const data = await res.json();
+        const idiomsText = data.idioms;
+
+        // Display idioms
+        document.getElementById("result").innerText = idiomsText;
+
+        // Try to extract idioms into list items (split by newlines or numbers)
+        const idioms = idiomsText.split(/\n|\d+\.\s*/).filter(x => x.trim().length > 0);
+
+        idiomSelect.innerHTML = "";
+        idioms.forEach(idiom => {
+            const option = document.createElement("option");
+            option.value = idiom.trim();
+            option.textContent = idiom.trim();
+            idiomSelect.appendChild(option);
+        });
+
+        evalSection.style.display = "block";
+    });
+
+    evalForm.addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const res = await fetch("/evaluate_sentence", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                idiom: document.getElementById("idiom").value,
+                user_sentence: document.getElementById("user_sentence").value
+            })
+        });
+
+        const data = await res.json();
+        document.getElementById("feedback").innerText = data.feedback;
+    });
+    </script>
+</body>
+</html>
