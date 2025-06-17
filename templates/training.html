@@ -1,47 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Idiom Matching Exercise</title>
-    <link rel="stylesheet" href="/static/style.css" />
+    <title>Training Room - Matching Exercise</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Idiom Matching Trainer</h1>
-        <form id="match-form">
-            <label>Anzahl:</label>
-            <input type="number" name="nbr_idioms" value="3"><br>
-            <label>Thema:</label>
-            <input type="text" name="topic" value="Tiere"><br>
-            <label>Niveau:</label>
-            <input type="text" name="level" value="A2"><br>
-            <button type="submit">Generieren</button>
-        </form>
+    <h1>Training Room - Matching Exercise</h1>
 
-        <div id="exercise-output" style="margin-top: 2rem;"></div>
+    <!-- Matching Exercise Section -->
+    <div id="matching-exercise" class="exercise-content">
+        <p class="loading">Loading your matching exercise...</p>
     </div>
 
+    <!-- Answer Submission Form -->
+    <div id="form-section" class="form-section" style="display:none;">
+        <!-- <label for="answers"><strong>Enter your matches (e.g., 1-a, 2-b, 3-c):</strong></label> -->
+        <textarea id="answers" rows="6" placeholder="Type your answers here...
+            Example:
+            1-a
+            2-b
+            3-c"></textarea>
+        <button onclick="submitAnswers()">Submit Answers</button>
+    </div>
+
+    <!-- Feedback Section -->
+    <div id="feedback"></div>
+
     <script>
-        const form = document.getElementById("match-form");
-        const output = document.getElementById("exercise-output");
+        // Fetch the matching exercise when page loads
+        async function loadExercise() {
+            try {
+                const response = await fetch("/matching_exercise", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ session_id: "default" })
+                });
 
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = {
-                nbr_idioms: Number(formData.get("nbr_idioms")),
-                topic: formData.get("topic"),
-                level: formData.get("level"),
-            };
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById("matching-exercise").innerHTML = 
+                        `<p class="error">Error: ${data.error}</p>`;
+                } else {
+                    document.getElementById("matching-exercise").innerHTML = 
+                        `<pre>${data.exercise}</pre>`;
+                    document.getElementById("form-section").style.display = "block";
+                }
+            } catch (error) {
+                document.getElementById("matching-exercise").innerHTML = 
+                    `<p class="error">Failed to load exercise: ${error.message}</p>`;
+            }
+        }
 
-            const res = await fetch("/generate_matching", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            });
+        // Submit answers
+        function submitAnswers() {
+            const answers = document.getElementById("answers").value.trim();
+            
+            if (!answers) {
+                alert("Please enter your answers!");
+                return;
+            }
 
-            const json = await res.json();
-            output.innerHTML = `<pre>${json.exercise}</pre>`;
-        });
+            document.getElementById("evaluate_answer").innerHTML = 
+                `<div class="feedback">
+                    <h3>Your Submitted Answers:</h3>
+                    <pre>${answers}</pre>
+                    <p><em>Answers submitted successfully! (Evaluation feature coming soon...)</em></p>
+                </div>`;
+            
+            // Scroll to feedback
+            document.getElementById("feedback").scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Load exercise when page loads
+        window.onload = loadExercise;
     </script>
-</body>
+</body>         
 </html>

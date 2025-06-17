@@ -26,8 +26,8 @@
     <!-- Result: Idioms -->
     <div id="result"></div>
 
-    <!-- Evaluation Form -->
-    <div id="evaluation-section" style="display:none;">
+    <!-- Evaluation Form
+    <div id="evaluation-section" style="display:none;"
         <h2>Your turn</h2>
         <form id="eval-form">
             <label for="idiom">Choose an idiom</label>
@@ -39,70 +39,58 @@
             <button type="submit">Evaluate</button>
         </form>
         <div id="feedback"></div>
-        <!-- Go to Training Room button -->
+        Go to Training Room button
         <div id="training-room-link" style="display:block; margin-top: 20px;">
             <a href="/templates/training.html">
                 <button type="button">Go to Training Room</button>
             </a>
         </div>
-    </div>
+    </div> -->
 
     <script>
-    const idiomForm = document.getElementById("idiom-form");
-    const evalForm = document.getElementById("eval-form");
-    const idiomSelect = document.getElementById("idiom");
-    const evalSection = document.getElementById("evaluation-section");
+        const idiomForm = document.getElementById("idiom-form");
+        const evalSection = document.getElementById("evaluation-section"); // Make sure this element exists
 
-    idiomForm.addEventListener("submit", async function(e) {
-        e.preventDefault();
+        function typeText(text, elementId, speed = 30) {
+            const element = document.getElementById(elementId);
+            element.innerText = "";
+            let i = 0;
+            function typeChar() {
+                if (i < text.length) {
+                    element.innerText += text.charAt(i);
+                    i++;
+                    setTimeout(typeChar, speed);
+                }
+            }
+            typeChar();
+        }
 
-        const res = await fetch("/generate_idioms", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                nbr_idioms: document.getElementById("nbr_idioms").value,
-                topic: document.getElementById("topic").value,
-                level: document.getElementById("level").value
-            })
+        idiomForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const res = await fetch("/generate_idioms", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    nbr_idioms: document.getElementById("nbr_idioms").value,
+                    topic: document.getElementById("topic").value,
+                    level: document.getElementById("level").value
+                })
+            });
+            const data = await res.json();
+            const idiomsText = data.idioms;
+            // Type out the idioms with a typing effect
+            typeText(idiomsText, "result", 20);
+            // Show evaluation section if necessary
+            evalSection.style.display = "block";
         });
-
-        const data = await res.json();
-        const idiomsText = data.idioms;
-
-        // Display idioms
-        document.getElementById("result").innerText = idiomsText;
-
-        // Try to extract idioms into list items (split by newlines or numbers)
-        const idioms = idiomsText.split(/\n|\d+\.\s*/).filter(x => x.trim().length > 0);
-
-        idiomSelect.innerHTML = "";
-        idioms.forEach(idiom => {
-            const option = document.createElement("option");
-            option.value = idiom.trim();
-            option.textContent = idiom.trim();
-            idiomSelect.appendChild(option);
-        });
-
-        evalSection.style.display = "block";
-    });
-
-    evalForm.addEventListener("submit", async function(e) {
-        e.preventDefault();
-
-        const res = await fetch("/evaluate_sentence", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                idiom: document.getElementById("idiom").value,
-                user_sentence: document.getElementById("user_sentence").value
-            })
-        });
-
-        const data = await res.json();
-        document.getElementById("feedback").innerText = data.feedback;
-        document.getElementById("training-room-link").style.display = "block";
-    });
     </script>
+    
+    <div id="training-room-link" style="display:block; margin-top: 20px;">
+        <a href="/training">
+            <button type="button">Go to Training Room</button>
+        </a>
+    </div>
 </body>
-<!-- <footer class="footer">Powered by langcraft</footer> -->
+<footer class="footer">Powered by langcraft</footer>
 </html>
