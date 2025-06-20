@@ -51,8 +51,7 @@
             }
         }
 
-        // Submit answers
-        function submitAnswers() {
+        async function submitAnswers() {
             const answers = document.getElementById("answers").value.trim();
             
             if (!answers) {
@@ -60,17 +59,33 @@
                 return;
             }
 
-            document.getElementById("evaluate_answer").innerHTML = 
-                `<div class="feedback">
-                    <h3>Your Submitted Answers:</h3>
-                    <pre>${answers}</pre>
-                    <p><em>Answers submitted successfully! (Evaluation feature coming soon...)</em></p>
-                </div>`;
-            
-            // Scroll to feedback
-            document.getElementById("feedback").scrollIntoView({ behavior: 'smooth' });
-        }
+            try {
+                const response = await fetch("/evaluate_answer", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_id: "default",
+                        user_answer: answers
+                    })
+                });
 
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById("feedback").innerHTML = `<p class="error">${data.error}</p>`;
+                } else {
+                    document.getElementById("feedback").innerHTML = 
+                        `<div class="feedback">
+                            <h3>Evaluation Feedback:</h3>
+                            <pre>${data.feedback}</pre>
+                        </div>`;
+                }
+
+                document.getElementById("feedback").scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                document.getElementById("feedback").innerHTML = 
+                    `<p class="error">Failed to evaluate: ${error.message}</p>`;
+            }
+        }
         // Load exercise when page loads
         window.onload = loadExercise;
     </script>

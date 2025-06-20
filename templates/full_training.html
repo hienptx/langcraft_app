@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Training Room - Idiom Games</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    
+  <!-- GAME SELECTOR -->
+  <ul id="game-selector">
+    <button onclick="loadGame('matching')">Matching Task</button>
+    <button onclick="loadGame('creative')">Creative Task</button>
+    <button onclick="loadGame('fill')">Filling Blank</button>
+  </ul>
+
+  <div id="game-container">
+
+    <!-- MATCHING GAME -->
+    <div id="matching-game" class="game" style="display:none;">
+      <h3>Matching Task</h3>
+      <div id="matching-exercise">Loading...</div>
+      <textarea id="matching-answers" rows="5" placeholder="e.g. 1-a\n2-b"></textarea>
+      <button onclick="submitMatching()">Submit Matching</button>
+      <div id="matching-feedback"></div>
+    </div>
+
+    <!-- CREATIVE GAME -->
+    <div id="creative-game" class="game" style="display:none;">
+      <h3>Creative Task</h3>
+      <div id="idioms-list">Loading...</div> 
+      <p>Write a short paragraph using at least one idiom.</p>
+      <textarea id="creative-input" rows="5"></textarea>
+      <button onclick="submitCreative()">Submit Creative</button>
+      <div id="creative-feedback"></div>
+    </div>
+
+    <!-- FILL-IN-THE-BLANK GAME -->
+    <div id="fill-game" class="game" style="display:none;">
+      <h3>Fill in the Blank</h3>
+      <div id="fill-exercise">Loading...</div>
+      <textarea id="fill-answer" rows="4"></textarea>
+      <button onclick="submitFill()">Submit Fill</button>
+      <div id="fill-feedback"></div>
+    </div>
+  </div>
+    <script>
+        function loadGame(type) {
+            document.querySelectorAll('.game').forEach(g => g.style.display = 'none');
+            document.getElementById(`${type}-game`).style.display = 'block';
+
+            if (type === 'matching') {
+            fetch('/matching_exercise', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: "default" })
+            }).then(res => res.json()).then(data => {
+                document.getElementById("matching-exercise").innerText = data.exercise || data.error;
+            });
+            }
+
+            if (type === 'fill') {
+            fetch('/fill_exercise', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: "default" })
+            }).then(res => res.json()).then(data => {
+                document.getElementById("fill-exercise").innerText = data.exercise || data.error;
+            });
+            }
+
+            if (type === 'creative') {
+                fetch('/idioms-list', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: "default" })
+            }).then(res => res.json()).then(data => {
+                document.getElementById("idioms-list").innerText = data.exercise || data.error;
+            });
+            }
+        }
+
+        function submitMatching() {
+            const user_answer = document.getElementById("matching-answers").value.trim();
+            fetch('/evaluate_answer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: "default", user_answer })
+            }).then(res => res.json()).then(data => {
+            document.getElementById("matching-feedback").innerText = data.feedback || data.error;
+            });
+        }
+
+        function submitCreative() {
+            const input = document.getElementById("creative-input").value.trim();
+            fetch('/creative_game', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: "default", user_answer: input })
+            }).then(res => res.json()).then(data => {
+            document.getElementById("creative-feedback").innerText = data.feedback || data.error;
+            });
+        }
+
+        function submitFill() {
+            const input = document.getElementById("fill-answer").value.trim();
+            fetch('/evaluate_fill', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: "default", user_answer: input })
+            }).then(res => res.json()).then(data => {
+            document.getElementById("fill-feedback").innerText = data.feedback || data.error;
+            });
+        }
+    </script>
+
+</body>         
+</html>

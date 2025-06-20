@@ -7,14 +7,9 @@ class IdiomRequest(BaseModel):
     level: str
     session_id: Optional[str] = "default"
 
-# class MatchingExerciseRequest(BaseModel):
-#     idioms: str
-#     do_training: str
+class SessionInput(BaseModel):
+    session_id: Optional[str] = "default"
 
-# class EvalRequest(BaseModel):
-#     user_sentence: str
-#     idiom: str
-
-# class MatchingExerciseResponse(BaseModel):
-#     german_idioms: list[str]
-#     english_meanings: list[str]
+class UserAnswerInput(BaseModel):
+    user_answer: str
+    session_id: str = "default"

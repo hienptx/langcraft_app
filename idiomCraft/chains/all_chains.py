@@ -1,8 +1,22 @@
+
+# graph TD
+#     A[POST /idiom-craft/generate-idioms] --> B[idiom_prompt_chain]
+#     B --> idiom_list
+
+#     C[POST /idiom-craft/extract] --> D[extract_chain]
+#     D --> idioms_extracted
+
+#     E[POST /idiom-craft/matching] --> F[matching_chain]
+#     F --> matching_task
+
+#     G[POST /idiom-craft/evaluate] --> H[evaluate_chain]
+#     H --> feedback
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
-from .generate_idioms import idiom_prompt
+from .prompt_generate_idioms import idiom_prompt
 from api.API_key import get_api_key
 
 # Memory store
@@ -47,9 +61,12 @@ idiom_chain = (
     | llm
 )
 
-from .matching_exercise import extract_prompt, matching_prompt, evaluate_matching_prompt
-
+from .prompt_matching_exercise import extract_prompt, matching_prompt, evaluate_matching_prompt
+from .prompt_creative_task import extract_idioms_list_prompt, feedback_prompt
 # Simple chains
 extract_chain = extract_prompt | llm
 matching_chain = matching_prompt | llm
-evaluate_answer_chain = evaluate_matching_prompt | llm
+evaluate_chain = evaluate_matching_prompt | llm
+
+extract_idioms_chain = extract_idioms_list_prompt | llm
+feedback_chain = feedback_prompt | llm
