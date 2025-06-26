@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangCraft - Master Languages Through Practice</title>
+    <link rel="stylesheet" href="/static/style_2.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>LangCraft</h1>
+                <p class="tagline">Master Languages Through Practice</p>
+            </div>
+        </header>
+
+        <!-- Login Section -->
+        <section class="login-section" id="loginSection">
+            <div class="login-card">
+                <h2>Welcome Back</h2>
+                <form class="login-form" id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign In</button>
+                    <p class="form-footer">
+                        Don't have an account? <a href="#" class="link">Sign up</a>
+                    </p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Main App Interface -->
+        <main class="main-app" id="mainApp" style="display: none;">
+            <div class="welcome-section">
+                <h2>Welcome to LangCraft</h2>
+                <p>Choose your learning path and start crafting your language skills</p>
+            </div>
+
+            <div class="craft-grid">
+                <div class="craft-card" onclick="navigateToSection('idiom_craft.html')">
+                    <div class="craft-icon">💭</div>
+                    <h3>Idiom Craft</h3>
+                    <p>Master expressions and phrases that bring language to life</p>
+                </div>
+
+                <div class="craft-card" onclick="navigateToSection('conversation_craft.html')">
+                    <div class="craft-icon">💬</div>
+                    <h3>Conversation Craft</h3>
+                    <p>Practice real-world dialogues and speaking scenarios</p>
+                </div>
+
+                <div class="craft-card" onclick="navigateToSection('pronunciation_craft.html')">
+                    <div class="craft-icon">🗣️</div>
+                    <h3>Pronunciation Craft</h3>
+                    <p>Perfect your accent and speaking clarity</p>
+                </div>
+
+                <div class="craft-card" onclick="navigateToSection('words_craft.html')">
+                    <div class="craft-icon">📚</div>
+                    <h3>Words Craft</h3>
+                    <p>Build vocabulary through interactive learning</p>
+                </div>
+
+                <div class="craft-card" onclick="navigateToSection('grammar_craft.html')">
+                    <div class="craft-icon">⚙️</div>
+                    <h3>Grammar Craft</h3>
+                    <p>Master the rules that structure language</p>
+                </div>
+
+                <div class="craft-card" onclick="navigateToSection('translator.html')">
+                    <div class="craft-icon">🌐</div>
+                    <h3>Translator</h3>
+                    <p>Translate to any language of your choice</p>
+                </div>
+            </div>
+
+            <div class="user-progress">
+                <h3>Your Progress</h3>
+                <div class="progress-stats">
+                    <div class="stat">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Lessons Completed</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Words Learned</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Day Streak</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 LangCraft. Crafting language skills, one lesson at a time.</p>
+        </footer>
+    </div>
+
+    <!-- // Login form handling -->
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginSection = document.getElementById('loginSection');
+        const mainApp = document.getElementById('mainApp');
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple validation (in real app, this would be handled by backend)
+            if (email && password) {
+                // Simulate successful login
+                loginSection.style.display = 'none';
+                mainApp.style.display = 'block';
+                
+                // Optional: Store user session
+                sessionStorage.setItem('userLoggedIn', 'true');
+                sessionStorage.setItem('userEmail', email);
+            }
+        });
+
+        // Navigation function
+        function navigateToSection(sectionUrl) {
+            // Check if user is logged in
+            if (sessionStorage.getItem('userLoggedIn') === 'true') {
+                window.location.href = sectionUrl;
+            } else {
+                alert('Please log in to access this section');
+            }
+        }
+
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
+            if (sessionStorage.getItem('userLoggedIn') === 'true') {
+                loginSection.style.display = 'none';
+                mainApp.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

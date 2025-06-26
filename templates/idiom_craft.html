@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idiom Craft - LangCraft</title>
+    <link rel="stylesheet" href="/static/style_2.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>LangCraft</h1>
+                <p class="tagline">Idiom Craft - Master Expressions & Phrases</p>
+            </div>
+            <nav class="breadcrumb">
+                <a href="/" class="link">← Back to Home</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-app">
+            <div class="welcome-section">
+                <div class="craft-icon">💭</div>
+                <h2>German Idiom Generator</h2>
+                <p>Generate contextual idioms to enhance your German language skills</p>
+            </div>
+
+            <!-- Idiom Generation Form -->
+            <div class="form-section">
+                <div class="form-card">
+                    <h3>Generate Idioms</h3>
+                    <form id="idiom-form" class="idiom-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nbr_idioms">Number of Idioms</label>
+                                <input type="number" id="nbr_idioms" name="nbr_idioms" min="1" max="20" value="5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="level">Difficulty Level</label>
+                                <select id="level" name="level" required>
+                                    <option value="">Select Level</option>
+                                    <option value="A1">A1</option>
+                                    <option value="A2">A2</option>
+                                    <option value="B1">B1</option>
+                                    <option value="B2">B2</option>
+                                    <option value="C1">C1</option>
+                                    <option value="C2">C2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="topic">Topic or Theme</label>
+                            <input type="text" id="topic" name="topic" placeholder="e.g., food, travel, emotions" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary generate-btn">
+                            <span class="btn-text">Generate Idioms</span>
+                            <span class="loading-spinner" style="display: none;">⟳</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="results-section" style="display: none;">
+                <div class="results-card">
+                    <h3>Generated Idioms</h3>
+                    <div id="result" class="idioms-content"></div>
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="generateNew()">
+                            Generate New Set
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Room Link -->
+            <div class="training-section">
+                <div class="training-card">
+                    <div class="training-icon">🎯</div>
+                    <h3>Ready to Practice?</h3>
+                    <p>Take your idiom knowledge to the next level in our interactive training room</p>
+                    <a href="/training" class="btn btn-primary">
+                        Go to Training Room
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Tips -->
+            <div class="tips-section">
+                <h3>💡 Tips for Learning Idioms</h3>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <strong>Context is Key</strong>
+                        <p>Always learn idioms within their natural context and usage scenarios</p>
+                    </div>
+                    <div class="tip-card">
+                        <strong>Practice Regularly</strong>
+                        <p>Use new idioms in sentences to reinforce memory and understanding</p>
+                    </div>
+                    <div class="tip-card">
+                        <strong>Cultural Awareness</strong>
+                        <p>Understand the cultural background behind idioms for deeper comprehension</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 LangCraft. Crafting language skills, one idiom at a time.</p>
+        </footer>
+    </div>
+
+    <script>
+        const idiomForm = document.getElementById("idiom-form");
+        const evalSection = document.getElementById("evaluation-section");
+        const resultsSection = document.getElementById("results-section");
+        const generateBtn = document.querySelector(".generate-btn");
+        const btnText = document.querySelector(".btn-text");
+        const loadingSpinner = document.querySelector(".loading-spinner");
+        
+        function typeText(text, elementId, speed = 30) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = "";
+            let i = 0;
+            function typeChar() {
+                if (i < text.length) {
+                    // If the next character is a newline, insert <br>
+                    if (text.charAt(i) === "\n") {
+                        element.innerHTML += "<br>";
+                    } else {
+                        // Escape HTML special characters for safety
+                        const char = text.charAt(i)
+                            .replace(/&/g, "&amp;")
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;");
+                        element.innerHTML += char;
+                    }
+                    i++;
+                    setTimeout(typeChar, speed);
+                }
+            }
+            typeChar();
+        }
+                
+        function formatIdiomsText(text) {
+            // Split text into individual idioms and format them nicely
+            const lines = text.split('\n').filter(line => line.trim());
+            let formattedHtml = '';
+            
+            lines.forEach((line, index) => {
+                if (line.trim()) {
+                    // Check if line contains idiom structure (German - English)
+                    if (line.includes(' - ') || line.includes(':')) {
+                        formattedHtml += `<div class="idiom-item">
+                            <div class="idiom-number">${index + 1}</div>
+                            <div class="idiom-content">${line.trim()}</div>
+                        </div>`;
+                    } else {
+                        formattedHtml += `<div class="idiom-item">
+                            <div class="idiom-number">${index + 1}</div>
+                            <div class="idiom-content">${line.trim()}</div>
+                        </div>`;
+                    }
+                }
+            });
+            
+            return formattedHtml || `<div class="idiom-item"><div class="idiom-content">${text}</div></div>`;
+        }
+
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                btnText.style.display = "none";
+                loadingSpinner.style.display = "inline-block";
+                loadingSpinner.style.animation = "spin 1s linear infinite";
+                generateBtn.disabled = true;
+                generateBtn.style.opacity = "0.7";
+            } else {
+                btnText.style.display = "inline-block";
+                loadingSpinner.style.display = "none";
+                generateBtn.disabled = false;
+                generateBtn.style.opacity = "1";
+            }
+        }
+
+        function generateNew() {
+            resultsSection.style.display = "none";
+            document.getElementById("result").innerHTML = "";
+            // Scroll to form
+            document.querySelector(".form-section").scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+
+        idiomForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            
+            setLoadingState(true);
+
+            try {
+                const res = await fetch("/generate_idioms", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        nbr_idioms: document.getElementById("nbr_idioms").value,
+                        topic: document.getElementById("topic").value,
+                        level: document.getElementById("level").value
+                    })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                const idiomsText = data.idioms;
+                
+                // Show results section
+                resultsSection.style.display = "block";
+                
+                // Type out the idioms with formatting
+                typeText(idiomsText, "result", 20);
+                
+                // Scroll to results
+                setTimeout(() => {
+                    resultsSection.scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                }, 500);
+
+            } catch (error) {
+                console.error("Error generating idioms:", error);
+                resultsSection.style.display = "block";
+                document.getElementById("result").innerHTML = `
+                    <div class="error-message">
+                        <p>⚠️ Sorry, there was an error generating idioms. Please try again.</p>
+                        <p class="error-detail">Error: ${error.message}</p>
+                    </div>
+                `;
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            } finally {
+                setLoadingState(false);
+            }
+        });
+
+        // Add spinning animation for loading
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+    <style>
+        /* Additional styles specific to Idiom Craft */
+        .breadcrumb {
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb .link {
+            color: #6c7b7f;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb .link:hover {
+            color: #2c3e50;
+            text-decoration: underline;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border: 1px solid #e1e8ed;
+        }
+
+        .form-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .idiom-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.5rem;
+            color: #5a6c7d;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #6c7b7f;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(108, 123, 127, 0.1);
+        }
+
+        .generate-btn {
+            align-self: flex-start;
+            min-width: 180px;
+            position: relative;
+        }
+
+        .results-section {
+            margin-bottom: 2rem;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border: 1px solid #e1e8ed;
+        }
+
+        .results-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .idioms-content {
+            margin-bottom: 1.5rem;
+        }
+
+        .idiom-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #fafbfc;
+            border-radius: 8px;
+            border-left: 4px solid #6c7b7f;
+        }
+
+        .idiom-number {
+            background: #6c7b7f;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .idiom-content {
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c7b7f;
+            border: 2px solid #e1e8ed;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #6c7b7f;
+        }
+
+        .training-section {
+            margin-bottom: 2rem;
+        }
+
+        .training-card {
+            background: linear-gradient(135deg, #6c7b7f 0%, #95a5a6 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(108, 123, 127, 0.3);
+        }
+
+        .training-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .training-card h3 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .training-card p {
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .training-card .btn {
+            background: white;
+            color: #6c7b7f;
+            border: none;
+        }
+
+        .training-card .btn:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        .tips-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+            border: 1px solid #e1e8ed;
+            margin-bottom: 2rem;
+        }
+
+        .tips-section h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .tip-card {
+            padding: 1rem;
+            background: #fafbfc;
+            border-radius: 8px;
+            border: 1px solid #e1e8ed;
+        }
+
+        .tip-card strong {
+            color: #6c7b7f;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            color: #e74c3c;
+            background: #fdf2f2;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .error-detail {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</body>
+</html>

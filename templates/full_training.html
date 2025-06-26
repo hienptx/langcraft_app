@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Training Room - Idiom Games</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style_2.css">
 </head>
 <body>
     
@@ -59,17 +59,19 @@
             }
 
             if (type === 'fill') {
-            fetch('/fill_exercise', {
+            fetch('/filling_exercise', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session_id: "default" })
+                body: JSON.stringify({
+                    session_id: "default",
+                    user_answer,})
             }).then(res => res.json()).then(data => {
                 document.getElementById("fill-exercise").innerText = data.exercise || data.error;
             });
             }
 
             if (type === 'creative') {
-                fetch('/idioms-list', {
+                fetch('/idioms_list', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: "default" })
@@ -84,7 +86,11 @@
             fetch('/evaluate_answer', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: "default", user_answer })
+            body: JSON.stringify({
+                session_id: "default",
+                user_answer,
+                exercise_type: "matching"
+                })
             }).then(res => res.json()).then(data => {
             document.getElementById("matching-feedback").innerText = data.feedback || data.error;
             });
@@ -103,10 +109,14 @@
 
         function submitFill() {
             const input = document.getElementById("fill-answer").value.trim();
-            fetch('/evaluate_fill', {
+            fetch('/evaluate_answer', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ session_id: "default", user_answer: input })
+            body: JSON.stringify({
+                session_id: "default", 
+                user_answer, 
+                exercise_type: "filling"
+                })
             }).then(res => res.json()).then(data => {
             document.getElementById("fill-feedback").innerText = data.feedback || data.error;
             });

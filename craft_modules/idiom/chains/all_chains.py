@@ -22,13 +22,24 @@ from api.API_key import get_api_key
 # Memory store
 store = {}
 
-def get_session_history(session_id: str) -> ChatMessageHistory:
+class SessionWrapper:
+    def __init__(self):
+        self.history = ChatMessageHistory()
+        self.meta = {}
+
+    def add_user_message(self, msg):
+        self.history.add_user_message(msg)
+
+    def add_ai_message(self, msg):
+        self.history.add_ai_message(msg)
+
+def get_session_history(session_id: str) -> SessionWrapper:
     if session_id not in store:
-        store[session_id] = ChatMessageHistory()
+        store[session_id] = SessionWrapper()
     return store[session_id]
 
 # LLM setup
-provider = "openai"
+provider = "mistral"
 api_key = get_api_key(provider)
 
 if provider == "mistral":
@@ -63,6 +74,7 @@ idiom_chain = (
 
 from .prompt_matching_exercise import extract_prompt, matching_prompt, evaluate_matching_prompt
 from .prompt_creative_task import extract_idioms_list_prompt, feedback_prompt
+from .prompt_filling_task import filling_task_prompt
 # Simple chains
 extract_chain = extract_prompt | llm
 matching_chain = matching_prompt | llm
@@ -70,3 +82,5 @@ evaluate_chain = evaluate_matching_prompt | llm
 
 extract_idioms_chain = extract_idioms_list_prompt | llm
 feedback_chain = feedback_prompt | llm
+
+filling_gap_chain = filling_task_prompt | llm

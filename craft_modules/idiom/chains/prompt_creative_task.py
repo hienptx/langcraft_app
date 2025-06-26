@@ -18,6 +18,9 @@ extract_idioms_list_prompt = ChatPromptTemplate.from_messages([
         Here is the text:
 
         {text}
+
+        [IMPORTANT]
+        - Do not provide any extra texts except returning the list
         """
     )
 
