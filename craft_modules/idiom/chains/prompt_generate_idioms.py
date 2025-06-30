@@ -1,4 +1,3 @@
-
 from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate
 
 idiom_prompt = ChatPromptTemplate.from_messages([
