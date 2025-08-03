@@ -132,6 +132,11 @@ Once the application is running, visit:
 
 ---
 
+## Visual
+
+![LangCraft Login](images/langcraft-login.png)
+![LangCraft Modules](images/langcraft-modules.png)
+![LangCraft Idiom](images/langcraft-idiomgenerator.png)
 ## License
 
 This project is licensed under the [MIT License](LICENSE)
